@@ -11,5 +11,6 @@
     <Copyright>Copyright © 2026 Stephen Olesen</Copyright>
     <NeutralLanguage>en</NeutralLanguage>
     <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
+    <PathMap Condition="'$(CI)' == 'true'">$(MSBuildThisFileDirectory)=/_</PathMap>
   </PropertyGroup>
 </Project>
