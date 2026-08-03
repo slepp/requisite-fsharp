@@ -101,7 +101,21 @@ jobs:
         with:
           dotnet-version: 10.0.302
 
+      - name: Check NuGet publishing credentials
+        id: credentials
+        shell: bash
+        env:
+          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+        run: |
+          if [[ -n "$NUGET_API_KEY" ]]; then
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::NUGET_API_KEY is not configured; NuGet publication was skipped."
+          fi
+
       - name: Publish exact tagged package
+        if: steps.credentials.outputs.configured == 'true'
         shell: bash
         env:
           NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
@@ -109,11 +123,6 @@ jobs:
           version="${GITHUB_REF_NAME#v}"
           package="artifacts/packages/Requisite.FSharp.$version.nupkg"
           symbols="artifacts/packages/Requisite.FSharp.$version.snupkg"
-
-          if [[ -z "$NUGET_API_KEY" ]]; then
-            echo "The protected nuget environment must provide NUGET_API_KEY." >&2
-            exit 1
-          fi
 
           if [[ ! -f "$package" || ! -f "$symbols" ]]; then
             echo "Expected package and symbol package were not produced." >&2

@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.1.0
+## 0.1.0 - 2026-08-03
 
 - Initial F# port with typed trust transitions, validated confidence gates, and
   monotonic per-value freshness.

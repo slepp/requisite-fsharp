@@ -9,8 +9,10 @@
 3. Commit and push those changes, then create and push an exact `v<version>`
    tag, for example `v0.1.0`.
 4. The release workflow verifies that the tag and package version match,
-   rebuilds from lock files, tests, packs, attests the artifacts, and publishes
-   through the protected `nuget` environment.
+   rebuilds from lock files, tests, packs, and attests the artifacts. It
+   publishes through the protected `nuget` environment when a key is
+   configured; otherwise the validated artifacts remain available from the
+   workflow run.
 
 Configure the `nuget` environment with required reviewers and a
 `NUGET_API_KEY` secret scoped to `Requisite.FSharp`. Never publish from an
