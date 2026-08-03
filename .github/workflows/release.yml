@@ -1,0 +1,128 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+concurrency:
+  group: release-${{ github.ref_name }}
+  cancel-in-progress: false
+
+env:
+  DOTNET_CLI_TELEMETRY_OPTOUT: "1"
+  DOTNET_NOLOGO: "1"
+
+jobs:
+  verify:
+    name: Verify tagged package
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
+
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4.3.1
+        with:
+          dotnet-version: |
+            8.0.423
+            10.0.302
+
+      - name: Verify semantic version tag
+        shell: bash
+        run: |
+          if [[ ! "$GITHUB_REF_NAME" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Release tags must have the form vMAJOR.MINOR.PATCH." >&2
+            exit 1
+          fi
+
+      - run: dotnet tool restore
+      - run: dotnet restore Requisite.sln --locked-mode
+      - run: dotnet fantomas src tests/Requisite.Tests/*.fs tests/compiler-contracts examples --check
+      - run: dotnet build Requisite.sln --configuration Release --no-restore
+      - run: dotnet test tests/Requisite.Tests/Requisite.Tests.fsproj -f net8.0 --configuration Release --no-build
+      - run: dotnet test tests/Requisite.Tests/Requisite.Tests.fsproj -f net10.0 --configuration Release --no-build
+      - run: dotnet run --project examples/PaymentFlow/PaymentFlow.fsproj -f net8.0 --configuration Release --no-build
+      - run: dotnet run --project examples/PaymentFlow/PaymentFlow.fsproj -f net10.0 --configuration Release --no-build
+
+      - name: Verify tag matches package version
+        shell: bash
+        run: |
+          version="$(dotnet msbuild src/Requisite/Requisite.fsproj -nologo -getProperty:PackageVersion)"
+          if [[ "$GITHUB_REF_NAME" != "v$version" ]]; then
+            echo "Tag $GITHUB_REF_NAME does not match package version $version." >&2
+            exit 1
+          fi
+
+      - run: dotnet pack src/Requisite/Requisite.fsproj --configuration Release --no-build
+      - run: dotnet sourcelink test src/Requisite/bin/Release/netstandard2.0/Requisite.pdb
+      - run: dotnet sourcelink test src/Requisite/bin/Release/net8.0/Requisite.pdb
+      - run: dotnet sourcelink test src/Requisite/bin/Release/net10.0/Requisite.pdb
+
+      - name: Inspect package contents
+        shell: bash
+        run: |
+          unzip -l artifacts/packages/Requisite.FSharp.*.nupkg
+          unzip -l artifacts/packages/Requisite.FSharp.*.snupkg
+          unzip -p artifacts/packages/Requisite.FSharp.*.nupkg Requisite.FSharp.nuspec
+
+      - uses: actions/attest-build-provenance@e8998f949152b193b063cb0ec769d69d929409be # v2.4.0
+        with:
+          subject-path: artifacts/packages/*
+
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: requisite-packages
+          path: artifacts/packages/*
+          if-no-files-found: error
+
+  publish:
+    name: Publish to NuGet
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: nuget
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: requisite-packages
+          path: artifacts/packages
+
+      - uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4.3.1
+        with:
+          dotnet-version: 10.0.302
+
+      - name: Publish exact tagged package
+        shell: bash
+        env:
+          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          package="artifacts/packages/Requisite.FSharp.$version.nupkg"
+          symbols="artifacts/packages/Requisite.FSharp.$version.snupkg"
+
+          if [[ -z "$NUGET_API_KEY" ]]; then
+            echo "The protected nuget environment must provide NUGET_API_KEY." >&2
+            exit 1
+          fi
+
+          if [[ ! -f "$package" || ! -f "$symbols" ]]; then
+            echo "Expected package and symbol package were not produced." >&2
+            exit 1
+          fi
+
+          dotnet nuget push "$package" \
+            --api-key "$NUGET_API_KEY" \
+            --source https://api.nuget.org/v3/index.json \
+            --symbol-api-key "$NUGET_API_KEY" \
+            --symbol-source https://api.nuget.org/v3/index.json \
+            --skip-duplicate

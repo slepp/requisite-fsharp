@@ -1,0 +1,31 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Requisite", "src\Requisite\Requisite.fsproj", "{802A1C6C-0AA6-4C91-A5FB-059D3C601D94}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Requisite.Tests", "tests\Requisite.Tests\Requisite.Tests.fsproj", "{E3D1AE07-45FC-4946-8E51-C9D397A2888C}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "PaymentFlow", "examples\PaymentFlow\PaymentFlow.fsproj", "{B17382B7-87B3-4987-B16B-3273BCF655A3}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{802A1C6C-0AA6-4C91-A5FB-059D3C601D94}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{802A1C6C-0AA6-4C91-A5FB-059D3C601D94}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{802A1C6C-0AA6-4C91-A5FB-059D3C601D94}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{802A1C6C-0AA6-4C91-A5FB-059D3C601D94}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E3D1AE07-45FC-4946-8E51-C9D397A2888C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E3D1AE07-45FC-4946-8E51-C9D397A2888C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E3D1AE07-45FC-4946-8E51-C9D397A2888C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E3D1AE07-45FC-4946-8E51-C9D397A2888C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B17382B7-87B3-4987-B16B-3273BCF655A3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B17382B7-87B3-4987-B16B-3273BCF655A3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B17382B7-87B3-4987-B16B-3273BCF655A3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B17382B7-87B3-4987-B16B-3273BCF655A3}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
+
