@@ -19,8 +19,8 @@
 
     <PackageId>Requisite.FSharp</PackageId>
     <Title>Requisite for F#</Title>
-    <Description>Data-handling requirements encoded in idiomatic F# types.</Description>
-    <PackageTags>fsharp;typestate;taint;validation;type-safety;freshness</PackageTags>
+    <Description>Typed validated values, explicit trust transitions, exhaustive confidence levels, and per-value TTL freshness for F#.</Description>
+    <PackageTags>fsharp;validated-values;trusted-types;refinement-types;proof-types;confidence-levels;trust-boundary;exhaustive-matching;stale-data;typestate;validation;type-safety;taint-tracking;freshness;ttl</PackageTags>
     <PackageLicenseExpression>MIT OR Apache-2.0</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageProjectUrl>https://github.com/slepp/requisite-fsharp</PackageProjectUrl>
